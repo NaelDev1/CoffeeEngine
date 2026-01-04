@@ -51,3 +51,45 @@ void Renderer2D::DrawRect(int x, int y, int width, int height, int r, int g, int
     SDL_SetRenderDrawColor(m_Renderer, r, g, b, a);
     SDL_RenderFillRect(m_Renderer, &rect);
 }
+
+void Renderer2D::DrawIsoRect(int mapX, int mapY, int tileWidth, int tileHeight, int r, int g, int b, int a)
+{
+    if (!m_Renderer)
+        return;
+
+    // isometric conversor
+    int isoX = (mapX - mapY) * tileWidth / 2;
+    int isoY = (mapX + mapY) * tileHeight / 2;
+
+    SDL_Rect rect;
+    rect.x = isoX;
+    rect.y = isoY;
+    rect.w = tileWidth;
+    rect.h = tileHeight;
+
+    SDL_SetRenderDrawColor(m_Renderer, r, g, b, a);
+    SDL_RenderFillRect(m_Renderer, &rect);
+}
+
+void Renderer2D::DrawIsometricSprite(SDL_Texture *sprite, int mapX, int mapY, int tileWidth, int tileHeight)
+{
+
+    if (!m_Renderer || !sprite)
+        return;
+
+    // converting the conrdenated to a isometric map
+    int isoX = (mapX - mapY) * (tileWidth / 2);
+    int isoY = (mapX + mapY) * (tileHeight / 2);
+
+    // query sprite to cat the real size
+    int w, h;
+    SDL_QueryTexture(sprite, nullptr, nullptr, &w, &h);
+
+    SDL_Rect dstRect;
+    dstRect.x = isoX;
+    dstRect.y = isoY - h + tileHeight;
+    dstRect.w = w;
+    dstRect.h = h;
+
+    SDL_RenderCopy(m_Renderer, sprite, nullptr, &dstRect);
+}

@@ -15,4 +15,5 @@ private:
     bool m_Running;
     SDL_Window *m_Window;
     Renderer2D *m_Renderer;
+    SDL_Texture *m_HouseTexture;
 };
