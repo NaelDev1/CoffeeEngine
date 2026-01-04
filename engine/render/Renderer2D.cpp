@@ -35,3 +35,19 @@ void Renderer2D::EndFrame()
 
     SDL_RenderPresent(m_Renderer);
 }
+
+void Renderer2D::DrawRect(int x, int y, int width, int height, int r, int g, int b, int a)
+{
+
+    if (!m_Renderer)
+        return;
+
+    SDL_Rect rect;
+    rect.x = x;
+    rect.y = y;
+    rect.w = width;
+    rect.h = height;
+
+    SDL_SetRenderDrawColor(m_Renderer, r, g, b, a);
+    SDL_RenderFillRect(m_Renderer, &rect);
+}

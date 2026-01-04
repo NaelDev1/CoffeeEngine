@@ -59,6 +59,10 @@ void Application::Run()
         {
 
             m_Renderer->BeginFrame();
+
+            // drawing a rectangle
+            m_Renderer->DrawRect(100, 100, 200, 150, 0, 255, 0, 255); // a green rect
+
             m_Renderer->EndFrame();
         }
     }
