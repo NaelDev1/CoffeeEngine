@@ -11,6 +11,7 @@ find_package(SDL2 REQUIRED)
 add_executable(CoffeEngine 
     engine/main.cpp
     engine/core/Application.cpp
+    engine/render/Renderer2D.cpp
 )
 
 

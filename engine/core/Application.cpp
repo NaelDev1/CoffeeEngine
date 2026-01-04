@@ -1,9 +1,9 @@
 #include "Application.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 
 Application::Application()
-    : m_Running(true), m_Window(nullptr)
+    : m_Running(true), m_Window(nullptr), m_Renderer(nullptr)
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -24,10 +24,16 @@ Application::Application()
         std::cerr << "Window creation failed: " << SDL_GetError() << "\n";
         m_Running = false;
     }
+    if (m_Window)
+    {
+
+        m_Renderer = new Renderer2D(m_Window);
+    }
 }
 
 Application::~Application()
 {
+    delete m_Renderer;
     if (m_Window)
     {
         SDL_DestroyWindow(m_Window);
@@ -49,8 +55,11 @@ void Application::Run()
             }
         }
 
-        // update (vazio por enquanto)
+        if (m_Renderer)
+        {
 
-        // render (vazio por enquanto)
+            m_Renderer->BeginFrame();
+            m_Renderer->EndFrame();
+        }
     }
 }
