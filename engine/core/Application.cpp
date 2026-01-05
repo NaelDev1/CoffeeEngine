@@ -4,7 +4,7 @@
 #include <iostream>
 
 Application::Application()
-    : m_Running(true), m_Window(nullptr), m_Renderer(nullptr), m_HouseTexture(nullptr)
+    : m_Running(true), m_Window(nullptr), m_Renderer(nullptr)
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -14,7 +14,7 @@ Application::Application()
 
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
     {
-        std::cerr << "SDL_image init failed: " << IMG_GetError() << "\n";
+        std::cerr << "IMG_Init failed: " << IMG_GetError() << std::endl;
         m_Running = false;
         return;
     }
@@ -23,8 +23,8 @@ Application::Application()
         "CoffeeEngine ☕",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        800,
-        600,
+        1280,
+        720,
         SDL_WINDOW_SHOWN);
 
     if (!m_Window)
@@ -34,34 +34,13 @@ Application::Application()
     }
     if (m_Window)
     {
-
         m_Renderer = new Renderer2D(m_Window);
-
-        // loading the house sprite
-        SDL_Surface *surface = IMG_Load("assets/sprites/houses.png");
-
-        if (!surface)
-        {
-            std::cerr << "Failed to load house.png: " << IMG_GetError() << "\n";
-            m_Running = false;
-            return;
-        }
-
-        m_HouseTexture = SDL_CreateTextureFromSurface(m_Renderer->GetSDLRenderer(), surface);
-        SDL_FreeSurface(surface);
-        if (!m_HouseTexture)
-        {
-            std::cerr << "Failed to create texture: " << SDL_GetError() << "\n";
-            m_Running = false;
-            return;
-        }
     }
 }
 
 Application::~Application()
 {
-    if (m_HouseTexture)
-        SDL_DestroyTexture(m_HouseTexture);
+
     delete m_Renderer;
     if (m_Window)
     {
@@ -73,12 +52,16 @@ Application::~Application()
 
 void Application::Run()
 {
+    // apresentar a logo inicialmente aqui antes de dar play
+    ShowSplashScreen();
 
-    int tileW = 512;
-    int tileH = 256;
-
+    Uint32 lastTime = SDL_GetTicks();
     while (m_Running)
     {
+        Uint32 currentTime = SDL_GetTicks();
+        float deltaTime = (currentTime - lastTime) / 1000.0f;
+        lastTime = currentTime;
+
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -95,26 +78,81 @@ void Application::Run()
             // m_Renderer->DrawRect(100, 100, 200, 150, 0, 255, 0, 255); // a green rect
 
             // drawing a isometric map tiles
-            // int tileW = 64;
-            // int tileH = 32;
-            // for (int y = 0; y < 4; ++y)
-            // {
-            //     for (int x = 0; x < 4; ++x)
-            //     {
-            //         m_Renderer->DrawIsoRect(x, y, tileW, tileH, 0, 255, 0, 255);
-            //     }
-            // }
-
-            // drawining 4x4 houses;
-            for (int y = 0; y < 4; ++y)
+            int tileW = 64;
+            int tileH = 32;
+            int mapSize = 15;
+            for (int y = 0; y < mapSize; ++y)
             {
-                for (int x = 0; x < 4; ++x)
+                for (int x = 0; x < mapSize; ++x)
                 {
-                    m_Renderer->DrawIsometricSprite(m_HouseTexture, x, y, tileW, tileH);
+                    m_Renderer->DrawIsoRect(x, y, tileW, tileH, 53, 117, 143, 100);
+                }
+            }
+
+            static SDL_Texture *tileSet = m_Renderer->LoadTexture("assets/sprites/houses.png");
+
+            for (int y = 0; y < mapSize; ++y)
+            {
+                for (int x = 0; x < mapSize; ++x)
+                {
+                    int tileIndexX = x % 4;
+                    int tileIndexY = y % 4;
+
+                    m_Renderer->DrawIsometricSprite(tileSet, x, y, 64, 32, tileIndexX, tileIndexY, 512);
                 }
             }
 
             m_Renderer->EndFrame();
         }
     }
+}
+
+void Application::ShowSplashScreen()
+{
+    SDL_Texture *logo = m_Renderer->LoadTexture("engine/util/logo.png");
+    if (!logo)
+        return;
+
+    Uint32 startTime = SDL_GetTicks();
+    float alpha = 0;
+    bool fadingIn = true;
+
+    while (m_Running && fadingIn)
+    {
+        // Calcula fade
+        Uint32 currentTime = SDL_GetTicks();
+        float elapsed = (currentTime - startTime) / 1000.0f;
+
+        if (elapsed < 2.0f)
+        {
+            alpha = (elapsed / 2.0f) * 255; // Fade in 2 segundos
+        }
+        else
+        {
+            alpha = 255;
+            if (elapsed > 4.0f)
+                fadingIn = false; // Mostra por 2 segundos
+        }
+
+        // Processa eventos (para não travar)
+        SDL_Event e;
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+                m_Running = false;
+        }
+
+        // Renderiza logo
+        m_Renderer->BeginFrame();
+        SDL_SetTextureAlphaMod(logo, (Uint8)alpha);
+
+        int winW, winH;
+        SDL_GetWindowSize(m_Window, &winW, &winH);
+        SDL_Rect dst = {winW / 2 - 256, winH / 2 - 256, 512, 512};
+        SDL_RenderCopy(m_Renderer->GetSDLRenderer(), logo, nullptr, &dst);
+
+        m_Renderer->EndFrame();
+    }
+
+    SDL_DestroyTexture(logo);
 }

@@ -1,4 +1,5 @@
 #include "Renderer2D.h"
+#include <SDL_image.h>
 #include <iostream>
 
 Renderer2D::Renderer2D(SDL_Window *window)
@@ -26,7 +27,7 @@ Renderer2D::~Renderer2D()
 void Renderer2D::BeginFrame()
 {
     // Cor de fundo (cinza escuro)
-    SDL_SetRenderDrawColor(m_Renderer, 80, 80, 80, 255);
+    SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 0);
     SDL_RenderClear(m_Renderer);
 }
 
@@ -58,38 +59,61 @@ void Renderer2D::DrawIsoRect(int mapX, int mapY, int tileWidth, int tileHeight, 
         return;
 
     // isometric conversor
+
     int isoX = (mapX - mapY) * tileWidth / 2;
     int isoY = (mapX + mapY) * tileHeight / 2;
 
-    SDL_Rect rect;
-    rect.x = isoX;
-    rect.y = isoY;
-    rect.w = tileWidth;
-    rect.h = tileHeight;
+    int winW, winH;
+    SDL_GetRendererOutputSize(m_Renderer, &winW, &winH);
+    isoX += winW / 2;
+    isoY += winH / 4;
+
+    SDL_Point points[5];
+    points[0] = {isoX, isoY + tileHeight / 2};             // topo
+    points[1] = {isoX + tileWidth / 2, isoY};              // direita
+    points[2] = {isoX + tileWidth, isoY + tileHeight / 2}; // base
+    points[3] = {isoX + tileWidth / 2, isoY + tileHeight}; // esquerda
+    points[4] = points[0];                                 // fecha polígono
 
     SDL_SetRenderDrawColor(m_Renderer, r, g, b, a);
-    SDL_RenderFillRect(m_Renderer, &rect);
+    SDL_RenderDrawLines(m_Renderer, points, 5);
 }
 
-void Renderer2D::DrawIsometricSprite(SDL_Texture *sprite, int mapX, int mapY, int tileWidth, int tileHeight)
+void Renderer2D::DrawIsometricSprite(SDL_Texture *spriteSheet, int mapX, int mapY, int tileWidth, int tileHeight, int spriteX, int spriteY, int spriteSize)
 {
 
-    if (!m_Renderer || !sprite)
+    if (!m_Renderer || !spriteSheet)
         return;
 
-    // converting the conrdenated to a isometric map
-    int isoX = (mapX - mapY) * (tileWidth / 2);
-    int isoY = (mapX + mapY) * (tileHeight / 2);
+    int winW, winH;
+    SDL_GetRendererOutputSize(m_Renderer, &winW, &winH);
 
-    // query sprite to cat the real size
-    int w, h;
-    SDL_QueryTexture(sprite, nullptr, nullptr, &w, &h);
+    // converting the conrdenated to a isometric map
+    int isoX = (mapX - mapY) * (tileWidth / 2) + winW / 2;
+    int isoY = (mapX + mapY) * (tileHeight / 2) + winH / 4;
+
+    SDL_Rect srcRect;
+    srcRect.x = spriteX * spriteSize;
+    srcRect.y = spriteY * spriteSize;
+    srcRect.w = spriteSize;
+    srcRect.h = spriteSize;
 
     SDL_Rect dstRect;
     dstRect.x = isoX;
-    dstRect.y = isoY - h + tileHeight;
-    dstRect.w = w;
-    dstRect.h = h;
+    dstRect.y = isoY - tileHeight;
+    dstRect.w = tileWidth;
+    dstRect.h = tileHeight * 2;
 
-    SDL_RenderCopy(m_Renderer, sprite, nullptr, &dstRect);
+    SDL_RenderCopy(m_Renderer, spriteSheet, &srcRect, &dstRect);
+}
+
+SDL_Texture *Renderer2D::LoadTexture(const char *path)
+{
+    SDL_Texture *texture = IMG_LoadTexture(m_Renderer, path);
+    if (!texture)
+    {
+        std::cerr << "Failed to load: " << path << ": " << IMG_GetError() << "\n";
+    }
+
+    return texture;
 }

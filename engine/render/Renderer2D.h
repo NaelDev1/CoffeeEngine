@@ -16,9 +16,10 @@ public:
     // new method to draw a isometric rec
     void DrawIsoRect(int mapX, int mapY, int tileWidth, int tileHeight, int r, int g, int b, int a);
     // new method to draw a isometric prite
-    void DrawIsometricSprite(SDL_Texture *sprite, int mapX, int mapY, int tileWidth, int tileHeight);
+    void DrawIsometricSprite(SDL_Texture *spriteSheet, int mapX, int mapY, int tileWidth, int tileHeight, int spriteX, int spriteY, int spriteSize);
 
     SDL_Renderer *GetSDLRenderer() const { return m_Renderer; }
+    SDL_Texture *LoadTexture(const char *path);
 
 private:
     SDL_Renderer *m_Renderer;
