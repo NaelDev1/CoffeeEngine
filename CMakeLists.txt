@@ -10,6 +10,7 @@ add_executable(CoffeeEngine
     engine/core/Application.cpp
     engine/render/Renderer2D.cpp
     engine/input/InputSystem.cpp
+    engine/core/Log.cpp
 )
 
 # --- Include engine ---

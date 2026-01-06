@@ -1,5 +1,6 @@
 #include <iostream>
 #include "core/Application.h"
+#include "core/Log.h"
 
 int main()
 {
@@ -8,6 +9,8 @@ int main()
     // return 0;
 
     Application app;
+    Log::Init();
     app.Run();
+    Log::Shutdown();
     return 0;
 }

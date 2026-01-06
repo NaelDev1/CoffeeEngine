@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <iostream>
+#include "Log.h"
 
 Application::Application()
     : m_Running(true), m_Window(nullptr), m_Renderer(nullptr)
@@ -52,6 +53,7 @@ Application::~Application()
 
 void Application::Run()
 {
+    LOG_INFO("Wellcome into CoffeeEngine!");
     // apresentar a logo inicialmente aqui antes de dar play
     ShowSplashScreen();
 
