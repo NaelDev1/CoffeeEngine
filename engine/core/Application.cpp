@@ -73,15 +73,7 @@ void Application::Run()
             if (event.type == SDL_QUIT)
                 m_Running = false;
 
-            if (event.type == SDL_KEYDOWN && !event.key.repeat)
-            {
-                InputSystem::OnKeyDown(Key::A);
-            }
-            if (event.type == SDL_KEYUP)
-                InputSystem::OnKeyUp(Key::A);
-
-            if (InputSystem::IsPressed(Key::A))
-                std::cerr << "Is Pressed the key" << SDL_GetKeyName(event.key.keysym.sym) << "\n";
+            InputSystem::ProcessSDLEvent(event);
         }
         InputSystem::Update();
 
