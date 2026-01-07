@@ -37,5 +37,5 @@ bool InputSystem::IsHeld(Key key)
 
 bool InputSystem::IsReleased(Key key)
 {
-    return keys[key] == KeyState::Released;
+    return false;
 }
