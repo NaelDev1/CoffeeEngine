@@ -114,6 +114,10 @@ void Application::Run()
     }
 }
 
+void Application::OnEvent(Event &event)
+{
+}
+
 void Application::ShowSplashScreen()
 {
     SDL_Texture *logo = m_Renderer->LoadTexture("engine/util/logo.png");

@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include "render/Renderer2D.h"
+#include "events/Event.h"
 
 class Application
 {
@@ -10,6 +11,7 @@ public:
     ~Application();
 
     void Run();
+    void OnEvent(Event &event);
 
 private:
     bool m_Running;
