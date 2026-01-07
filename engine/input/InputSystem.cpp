@@ -9,6 +9,13 @@ void InputSystem::Init()
 
 void InputSystem::Update()
 {
+    for (auto &[key, state] : keys)
+    {
+        if (state == KeyState::Pressed)
+            state = KeyState::Held;
+        else if (state == KeyState::Released)
+            state = KeyState::Up;
+    }
 }
 
 void InputSystem::Shutdown()
@@ -18,15 +25,28 @@ void InputSystem::Shutdown()
 
 bool InputSystem::IsPressed(Key key)
 {
-    return false;
+    return keys[key] == KeyState::Pressed;
 }
 
 bool InputSystem::IsHeld(Key key)
 {
-    return false;
+    return keys[key] == KeyState::Held;
 }
 
 bool InputSystem::IsReleased(Key key)
 {
-    return false;
+    return keys[key] == KeyState::Released;
+}
+
+void InputSystem::OnKeyDown(Key key)
+{
+
+    auto &state = keys[key];
+    if (state == KeyState::Up || state == KeyState::Released)
+        state = KeyState::Pressed;
+}
+
+void InputSystem::OnKeyUp(Key key)
+{
+    keys[key] = KeyState::Released;
 }

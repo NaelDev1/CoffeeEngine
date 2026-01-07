@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <iostream>
+#include "input/InputSystem.h"
 
 Application::Application()
     : m_Running(true), m_Window(nullptr), m_Renderer(nullptr)
@@ -35,6 +36,7 @@ Application::Application()
     if (m_Window)
     {
         m_Renderer = new Renderer2D(m_Window);
+        InputSystem::Init();
     }
 }
 
@@ -46,6 +48,7 @@ Application::~Application()
     {
         SDL_DestroyWindow(m_Window);
     }
+    InputSystem::Shutdown();
     IMG_Quit();
     SDL_Quit();
 }
@@ -67,11 +70,21 @@ void Application::Run()
         {
             if (event.type == SDL_QUIT)
                 m_Running = false;
+
+            if (event.type == SDL_KEYDOWN && !event.key.repeat)
+            {
+                InputSystem::OnKeyDown(Key::A);
+            }
+            if (event.type == SDL_KEYUP)
+                InputSystem::OnKeyUp(Key::A);
+
+            if (InputSystem::IsPressed(Key::A))
+                std::cerr << "Is Pressed the key" << SDL_GetKeyName(event.key.keysym.sym) << "\n";
         }
+        InputSystem::Update();
 
         if (m_Renderer)
         {
-
             m_Renderer->BeginFrame();
 
             // drawing a rectangle

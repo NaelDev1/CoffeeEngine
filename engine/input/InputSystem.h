@@ -10,6 +10,9 @@ public:
     static void Update();
     static void Shutdown();
 
+    static void OnKeyDown(Key key);
+    static void OnKeyUp(Key key);
+
     static bool IsPressed(Key key);
     static bool IsHeld(Key key);
     static bool IsReleased(Key key);
