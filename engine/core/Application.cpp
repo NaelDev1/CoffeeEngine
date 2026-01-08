@@ -4,10 +4,16 @@
 #include <iostream>
 #include "input/InputSystem.h"
 #include "Log.h"
+#include "events/EventDispatcher.h"
+#include "events/WindowCloseEvent.h"
 
 Application::Application()
     : m_Running(true), m_Window(nullptr), m_Renderer(nullptr)
 {
+
+    InputSystem::SetEventCallback([this](Event &e)
+                                  { OnEvent(e); });
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         std::cerr << "SDL init failed\n";
@@ -54,8 +60,19 @@ Application::~Application()
     SDL_Quit();
 }
 
+void Application::PushLayer(Layer *layer)
+{
+    m_LayerStack.PushLayer(layer);
+}
+
+void Application::PushOverlay(Layer *overlay)
+{
+    m_LayerStack.PushOverlay(overlay);
+}
+
 void Application::Run()
 {
+
     LOG_INFO("Wellcome into CoffeeEngine!");
     // apresentar a logo inicialmente aqui antes de dar play
     ShowSplashScreen();
@@ -71,7 +88,10 @@ void Application::Run()
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
-                m_Running = false;
+            {
+                WindowCloseEvent e;
+                OnEvent(e);
+            }
 
             InputSystem::ProcessSDLEvent(event);
         }
@@ -116,6 +136,12 @@ void Application::Run()
 
 void Application::OnEvent(Event &event)
 {
+    EventDispatcher dispatcher(event);
+
+    dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent &)
+                                          {
+        m_Running = false;
+        return true; });
 }
 
 void Application::ShowSplashScreen()
@@ -146,11 +172,16 @@ void Application::ShowSplashScreen()
         }
 
         // Processa eventos (para não travar)
-        SDL_Event e;
-        while (SDL_PollEvent(&e))
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
         {
-            if (e.type == SDL_QUIT)
-                m_Running = false;
+            if (event.type == SDL_QUIT)
+            {
+                WindowCloseEvent e;
+                OnEvent(e);
+            }
+
+            InputSystem::ProcessSDLEvent(event);
         }
 
         // Renderiza logo

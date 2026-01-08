@@ -9,4 +9,5 @@ public:
 
     virtual ~Event() = default;
     virtual EventType GetType() const = 0;
+    virtual const char *GetName() const = 0;
 };

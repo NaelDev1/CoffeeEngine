@@ -11,6 +11,7 @@ add_executable(CoffeeEngine
     engine/render/Renderer2D.cpp
     engine/input/InputSystem.cpp
     engine/core/Log.cpp
+    engine/core/LayerStack.cpp
 )
 
 # --- Include engine ---

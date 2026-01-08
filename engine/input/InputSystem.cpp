@@ -1,6 +1,14 @@
 #include "InputSystem.h"
+#include "events/KeyPressedEvent.h"
+#include "events/KeyReleasedEvent.h"
 
 std::unordered_map<Key, KeyState> InputSystem::keys;
+InputSystem::EventCallbackFn InputSystem::s_EventCallback;
+
+void InputSystem::SetEventCallback(const EventCallbackFn &callback)
+{
+    s_EventCallback = callback;
+}
 
 void InputSystem::Init()
 {
@@ -27,17 +35,36 @@ void InputSystem::Update()
 
 void InputSystem::ProcessSDLEvent(const SDL_Event &event)
 {
-    if (event.type == SDL_KEYDOWN && !event.key.repeat)
+
+    switch (event.type)
     {
-        Key key = SDLKeyToKey(event.key.keysym.sym);
-        if (key != Key::Unknown)
+    case SDL_KEYDOWN:
+    {
+        if (event.key.repeat == 0)
+        {
+            Key key = SDLKeyToKey(event.key.keysym.sym);
             OnKeyDown(key);
+
+            if (s_EventCallback)
+            {
+                KeyPressedEvent e(key);
+                s_EventCallback(e);
+            }
+        }
+        break;
     }
-    else if (event.type == SDL_KEYUP)
+    case SDL_KEYUP:
     {
         Key key = SDLKeyToKey(event.key.keysym.sym);
-        if (key != Key::Unknown)
-            OnKeyUp(key);
+        OnKeyUp(key);
+
+        if (s_EventCallback)
+        {
+            KeyReleasedEvent e(key);
+            s_EventCallback(e);
+        }
+        break;
+    }
     }
 }
 

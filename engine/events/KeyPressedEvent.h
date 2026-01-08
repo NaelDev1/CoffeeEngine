@@ -1,13 +1,12 @@
 #pragma once
 #include "Event.h"
 #include "EventType.h"
-#include "InputTypes.h"
+#include "input/InputTypes.h"
 
-class KeyPressEvent : public Event
+class KeyPressedEvent : public Event
 {
-
 public:
-    explicit KeyPressEvent(Key key)
+    explicit KeyPressedEvent(Key key)
         : m_Key(key) {}
 
     static EventType GetStaticType()
@@ -19,15 +18,14 @@ public:
     {
         return GetStaticType();
     }
+    const char *GetName() const override
+    {
+        return "KeyPressedEvent";
+    }
 
     Key GetKey() const
     {
         return m_Key;
-    }
-
-    const char *GetName() const override
-    {
-        return "KeyPressEvent";
     }
 
 private:

@@ -14,7 +14,7 @@ public:
     {
         if (m_Event.GetType() == T::GetStaticType())
         {
-            m_Event.handled |= func(static_cast<T &>(m_Event));
+            m_Event.Handled |= func(static_cast<T &>(m_Event));
             return true;
         }
         return false;

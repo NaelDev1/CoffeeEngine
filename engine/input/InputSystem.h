@@ -2,11 +2,14 @@
 #include <unordered_map>
 #include "input/InputTypes.h"
 #include <SDL.h>
+#include <functional>
+#include "events/Event.h"
 
 class InputSystem
 {
 
 public:
+    using EventCallbackFn = std::function<void(Event &)>;
     static void Init();
     static void Update();
     static void Shutdown();
@@ -17,6 +20,8 @@ public:
     static bool IsHeld(Key key);
     static bool IsReleased(Key key);
 
+    static void SetEventCallback(const EventCallbackFn &callback);
+
 private:
     static void OnKeyDown(Key key);
     static void OnKeyUp(Key key);
@@ -25,4 +30,5 @@ private:
 
 private:
     static std::unordered_map<Key, KeyState> keys;
+    static EventCallbackFn s_EventCallback;
 };
