@@ -24,38 +24,33 @@ Application::Application()
         m_Running = false;
         return;
     }
+    m_Window = std::make_unique<Window>("CoffeeEngine ☕", 1280, 720);
 
-    m_Window = SDL_CreateWindow(
-        "CoffeeEngine ☕",
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        1280,
-        720,
-        SDL_WINDOW_SHOWN);
-
-    if (!m_Window)
+    if (!m_Window->GetSDLWindow())
     {
         std::cerr << "Window creation failed: " << SDL_GetError() << "\n";
         m_Running = false;
     }
-    if (m_Window)
+    if (m_Window->GetSDLWindow())
     {
-        m_Renderer = new Renderer2D(m_Window);
+        InputSystem::Init();
+
+        InputSystem::SetEventCallback([this](Event &e)
+                                      { OnEvent(e); });
+
+        m_Window->SetCloseCallback([this]()
+                                   {
+            WindowCloseEvent e;
+            OnEvent(e); });
+        m_Renderer = new Renderer2D(m_Window->GetSDLWindow());
+        ShowSplashScreen();
     }
-    InputSystem::Init();
-    InputSystem::SetEventCallback([this](Event &e)
-                                  { OnEvent(e); });
-    ShowSplashScreen();
 }
 
 Application::~Application()
 {
 
     delete m_Renderer;
-    if (m_Window)
-    {
-        SDL_DestroyWindow(m_Window);
-    }
     InputSystem::Shutdown();
     IMG_Quit();
     SDL_Quit();
@@ -82,27 +77,13 @@ void Application::Run()
     {
         m_Timer.Tick();
         float deltaTime = m_Timer.GetDeltaTime();
-
-        Uint32 currentTime = SDL_GetTicks();
-
-        SDL_Event event;
-
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
-                WindowCloseEvent e;
-                OnEvent(e);
-            }
-
-            InputSystem::ProcessSDLEvent(event);
-        }
+        m_Window->PollEvents();
+        InputSystem::Update();
 
         for (Layer *layer : m_LayerStack)
         {
             layer->OnUpdate(deltaTime);
         }
-        InputSystem::Update();
 
         if (m_Renderer)
         {
@@ -170,6 +151,7 @@ void Application::ShowSplashScreen()
 
     while (m_Running && fadingIn)
     {
+        m_Window->PollEvents();
         // Calcula fade
         Uint32 currentTime = SDL_GetTicks();
         float elapsed = (currentTime - startTime) / 1000.0f;
@@ -185,25 +167,12 @@ void Application::ShowSplashScreen()
                 fadingIn = false; // Mostra por 2 segundos
         }
 
-        // Processa eventos (para não travar)
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
-                WindowCloseEvent e;
-                OnEvent(e);
-            }
-
-            InputSystem::ProcessSDLEvent(event);
-        }
-
         // Renderiza logo
         m_Renderer->BeginFrame();
         SDL_SetTextureAlphaMod(logo, (Uint8)alpha);
 
         int winW, winH;
-        SDL_GetWindowSize(m_Window, &winW, &winH);
+        SDL_GetWindowSize(m_Window->GetSDLWindow(), &winW, &winH);
         SDL_Rect dst = {winW / 2 - 256, winH / 2 - 256, 512, 512};
         SDL_RenderCopy(m_Renderer->GetSDLRenderer(), logo, nullptr, &dst);
 

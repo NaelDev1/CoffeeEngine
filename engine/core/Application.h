@@ -5,6 +5,7 @@
 #include "Layer.h"
 #include "LayerStack.h"
 #include "Timer.h"
+#include "Window.h"
 
 class Application
 {
@@ -22,7 +23,7 @@ public:
 private:
     Timer m_Timer;
     bool m_Running;
-    SDL_Window *m_Window;
+    std::unique_ptr<Window> m_Window;
     Renderer2D *m_Renderer;
     void ShowSplashScreen();
     LayerStack m_LayerStack;
