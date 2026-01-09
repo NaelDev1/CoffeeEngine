@@ -6,13 +6,11 @@
 #include "Log.h"
 #include "events/EventDispatcher.h"
 #include "events/WindowCloseEvent.h"
+#include "TestLayer.h"
 
 Application::Application()
     : m_Running(true), m_Window(nullptr), m_Renderer(nullptr)
 {
-
-    InputSystem::SetEventCallback([this](Event &e)
-                                  { OnEvent(e); });
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -43,8 +41,11 @@ Application::Application()
     if (m_Window)
     {
         m_Renderer = new Renderer2D(m_Window);
-        InputSystem::Init();
     }
+    InputSystem::Init();
+    InputSystem::SetEventCallback([this](Event &e)
+                                  { OnEvent(e); });
+    ShowSplashScreen();
 }
 
 Application::~Application()
@@ -74,17 +75,20 @@ void Application::Run()
 {
 
     LOG_INFO("Wellcome into CoffeeEngine!");
-    // apresentar a logo inicialmente aqui antes de dar play
-    ShowSplashScreen();
 
     Uint32 lastTime = SDL_GetTicks();
+
+    PushLayer(new TestLayer());
+
     while (m_Running)
     {
+
         Uint32 currentTime = SDL_GetTicks();
         float deltaTime = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
 
         SDL_Event event;
+
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
@@ -94,6 +98,11 @@ void Application::Run()
             }
 
             InputSystem::ProcessSDLEvent(event);
+        }
+
+        for (Layer *layer : m_LayerStack)
+        {
+            layer->OnUpdate(0.016f);
         }
         InputSystem::Update();
 
@@ -142,6 +151,13 @@ void Application::OnEvent(Event &event)
                                           {
         m_Running = false;
         return true; });
+
+    for (auto it = m_LayerStack.begin(); it != m_LayerStack.end(); ++it)
+    {
+        if (event.Handled)
+            break;
+        (*it)->OnEvent(event);
+    }
 }
 
 void Application::ShowSplashScreen()
