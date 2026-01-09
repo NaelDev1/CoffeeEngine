@@ -8,10 +8,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(CoffeeEngine 
     engine/main.cpp
     engine/core/Application.cpp
+    engine/core/LayerStack.cpp
+    engine/core/Timer.cpp
     engine/render/Renderer2D.cpp
     engine/input/InputSystem.cpp
     engine/core/Log.cpp
-    engine/core/LayerStack.cpp
+
 )
 
 # --- Include engine ---

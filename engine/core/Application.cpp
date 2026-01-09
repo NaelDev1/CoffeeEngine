@@ -76,16 +76,14 @@ void Application::Run()
 
     LOG_INFO("Wellcome into CoffeeEngine!");
 
-    Uint32 lastTime = SDL_GetTicks();
-
     PushLayer(new TestLayer());
 
     while (m_Running)
     {
+        m_Timer.Tick();
+        float deltaTime = m_Timer.GetDeltaTime();
 
         Uint32 currentTime = SDL_GetTicks();
-        float deltaTime = (currentTime - lastTime) / 1000.0f;
-        lastTime = currentTime;
 
         SDL_Event event;
 
@@ -102,7 +100,7 @@ void Application::Run()
 
         for (Layer *layer : m_LayerStack)
         {
-            layer->OnUpdate(0.016f);
+            layer->OnUpdate(deltaTime);
         }
         InputSystem::Update();
 

@@ -4,6 +4,7 @@
 #include "events/Event.h"
 #include "Layer.h"
 #include "LayerStack.h"
+#include "Timer.h"
 
 class Application
 {
@@ -19,6 +20,7 @@ public:
     void PushOverlay(Layer *overlay);
 
 private:
+    Timer m_Timer;
     bool m_Running;
     SDL_Window *m_Window;
     Renderer2D *m_Renderer;
