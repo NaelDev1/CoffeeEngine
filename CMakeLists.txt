@@ -11,6 +11,7 @@ add_executable(CoffeeEngine
     engine/core/LayerStack.cpp
     engine/core/Timer.cpp
     engine/core/Window.cpp
+    engine/core/Camera.cpp
     engine/render/Renderer2D.cpp
     engine/input/InputSystem.cpp
     engine/core/Log.cpp

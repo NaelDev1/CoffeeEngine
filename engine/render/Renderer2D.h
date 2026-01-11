@@ -1,4 +1,5 @@
 #pragma once
+#include "core/Camera.h"
 #include <SDL.h>
 
 class Renderer2D
@@ -8,7 +9,7 @@ public:
     Renderer2D(SDL_Window *window);
     ~Renderer2D();
 
-    void BeginFrame();
+    void BeginFrame(const Camera *camera = nullptr);
     void EndFrame();
 
     // new method
@@ -23,4 +24,5 @@ public:
 
 private:
     SDL_Renderer *m_Renderer;
+    const Camera *m_CurrentCamera = nullptr;
 };

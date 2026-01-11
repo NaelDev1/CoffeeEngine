@@ -1,6 +1,7 @@
 #include "InputSystem.h"
 #include "events/KeyPressedEvent.h"
 #include "events/KeyReleasedEvent.h"
+#include <iostream>
 
 std::unordered_map<Key, KeyState> InputSystem::keys;
 InputSystem::EventCallbackFn InputSystem::s_EventCallback;
@@ -43,13 +44,12 @@ void InputSystem::ProcessSDLEvent(const SDL_Event &event)
         if (event.key.repeat == 0)
         {
             Key key = SDLKeyToKey(event.key.keysym.sym);
-            OnKeyDown(key);
 
-            if (s_EventCallback)
-            {
-                KeyPressedEvent e(key);
-                s_EventCallback(e);
-            }
+            std::cout << "[InputSystem] Tecla pressionada: SDL=" << event.key.keysym.sym
+                      << " (" << SDL_GetKeyName(event.key.keysym.sym) << ")"
+                      << " -> Key=" << (int)key << std::endl;
+
+            OnKeyDown(key);
         }
         break;
     }
@@ -161,7 +161,7 @@ Key InputSystem::SDLKeyToKey(SDL_Keycode key)
     case SDLK_z:
         return Key::Z;
     case SDLK_0:
-        return Key::Nun0;
+        return Key::Num0;
     case SDLK_1:
         return Key::Num1;
     case SDLK_2:
@@ -171,7 +171,7 @@ Key InputSystem::SDLKeyToKey(SDL_Keycode key)
     case SDLK_4:
         return Key::Num4;
     case SDLK_5:
-        return Key::Nun5;
+        return Key::Num5;
     case SDLK_6:
         return Key::Num6;
     case SDLK_7:
@@ -180,9 +180,29 @@ Key InputSystem::SDLKeyToKey(SDL_Keycode key)
         return Key::Num8;
     case SDLK_9:
         return Key::Num9;
+    case SDLK_KP_1:
+        return Key::Num1;
+    case SDLK_KP_2:
+        return Key::Num2;
+    case SDLK_KP_3:
+        return Key::Num3;
+    case SDLK_KP_4:
+        return Key::Num4;
+    case SDLK_KP_5:
+        return Key::Num5;
+    case SDLK_KP_6:
+        return Key::Num6;
+    case SDLK_KP_7:
+        return Key::Num7;
+    case SDLK_KP_8:
+        return Key::Num8;
+    case SDLK_KP_9:
+        return Key::Num9;
+    case SDLK_KP_0:
+        return Key::Num0;
 
     case SDLK_SPACE:
-        return Key::Escape;
+        return Key::Space;
     case SDLK_KP_ENTER:
         return Key::Enter;
     case SDLK_ESCAPE:

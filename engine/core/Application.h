@@ -6,6 +6,7 @@
 #include "LayerStack.h"
 #include "Timer.h"
 #include "Window.h"
+#include "Camera.h"
 
 class Application
 {
@@ -21,6 +22,7 @@ public:
     void PushOverlay(Layer *overlay);
 
 private:
+    Camera m_Camera;
     Timer m_Timer;
     bool m_Running;
     std::unique_ptr<Window> m_Window;

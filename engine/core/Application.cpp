@@ -73,12 +73,48 @@ void Application::Run()
 
     PushLayer(new TestLayer());
 
+    m_Camera.SetPosition(0.0f, 0.0f);
+    m_Camera.SetZoom(1.0f);
     while (m_Running)
     {
         m_Timer.Tick();
         float deltaTime = m_Timer.GetDeltaTime();
         m_Window->PollEvents();
         InputSystem::Update();
+
+        if (InputSystem::IsHeld(Key::Num1))
+        {
+            std::cout << "NUM1 PRESSED!" << std::endl;
+            m_Camera.Zoom(1.1f);
+        }
+        if (InputSystem::IsHeld(Key::Num2))
+        {
+            std::cout << "NUM2 PRESSED!" << std::endl;
+            m_Camera.Zoom(0.9f);
+        }
+
+        if (InputSystem::IsHeld(Key::W))
+        {
+            m_Camera.Move(0.0f, -300.0f * deltaTime);
+        }
+        if (InputSystem::IsHeld(Key::S))
+        {
+            m_Camera.Move(0.0f, 300.0f * deltaTime);
+        }
+        if (InputSystem::IsHeld(Key::A))
+        {
+            m_Camera.Move(-300.0f * deltaTime, 0.0f);
+        }
+        if (InputSystem::IsHeld(Key::D))
+        {
+            m_Camera.Move(300.0f * deltaTime, 0.0f);
+        }
+
+        if (InputSystem::IsPressed(Key::R))
+        {
+            m_Camera.SetPosition(0.0f, 0.0f);
+            m_Camera.SetZoom(1.0f);
+        }
 
         for (Layer *layer : m_LayerStack)
         {
@@ -96,11 +132,14 @@ void Application::Run()
             int tileW = 64;
             int tileH = 32;
             int mapSize = 15;
+
             for (int y = 0; y < mapSize; ++y)
             {
                 for (int x = 0; x < mapSize; ++x)
                 {
-                    m_Renderer->DrawIsoRect(x, y, tileW, tileH, 53, 117, 143, 100);
+                    int worldX = (x - y) * tileW / 2;
+                    int worldY = (x + y) * tileH / 2;
+                    m_Renderer->DrawIsoRect(worldX, worldY, tileW, tileH, 53, 117, 143, 100);
                 }
             }
 
@@ -113,7 +152,10 @@ void Application::Run()
                     int tileIndexX = x % 4;
                     int tileIndexY = y % 4;
 
-                    m_Renderer->DrawIsometricSprite(tileSet, x, y, 64, 32, tileIndexX, tileIndexY, 512);
+                    int worldX = (x - y) * 64 / 2;
+                    int worldY = (x + y) * 32 / 2;
+
+                    m_Renderer->DrawIsometricSprite(tileSet, worldX, worldY, 64, 32, tileIndexX, tileIndexY, 512);
                 }
             }
 
@@ -152,22 +194,21 @@ void Application::ShowSplashScreen()
     while (m_Running && fadingIn)
     {
         m_Window->PollEvents();
-        // Calcula fade
+
         Uint32 currentTime = SDL_GetTicks();
         float elapsed = (currentTime - startTime) / 1000.0f;
 
         if (elapsed < 2.0f)
         {
-            alpha = (elapsed / 2.0f) * 255; // Fade in 2 segundos
+            alpha = (elapsed / 2.0f) * 255;
         }
         else
         {
             alpha = 255;
             if (elapsed > 4.0f)
-                fadingIn = false; // Mostra por 2 segundos
+                fadingIn = false;
         }
 
-        // Renderiza logo
         m_Renderer->BeginFrame();
         SDL_SetTextureAlphaMod(logo, (Uint8)alpha);
 
