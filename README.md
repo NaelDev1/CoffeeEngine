@@ -22,7 +22,7 @@
 
 - [x] ⭐⭐⭐⭐⭐ Renderer2D
 - [x] ⭐⭐⭐⭐☆ Textures & Sprites
-- [ ] ⭐⭐⭐☆☆ Camera System
+- [x] ⭐⭐⭐☆☆ Camera System
 - [ ] ⭐⭐☆☆☆ Batch Rendering
 - [ ] ⭐☆☆☆☆ Shaders
 
