@@ -7,11 +7,12 @@
 #include "events/EventDispatcher.h"
 #include "events/WindowCloseEvent.h"
 #include "TestLayer.h"
+#include "layers/DebugLayer.h"
 #include <SDL_ttf.h>
 #include <string>
 
 Application::Application()
-    : m_Running(true), m_Renderer(nullptr), m_Window(nullptr)
+    : m_Running(true), m_Renderer(nullptr)
 {
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -93,6 +94,7 @@ void Application::Run()
     LOG_INFO("Wellcome into CoffeeEngine!");
 
     PushLayer(new TestLayer());
+    PushLayer(new DebugLayer(m_Renderer, &m_Timer));
 
     m_Camera.SetPosition(0.0f, 0.0f);
     m_Camera.SetZoom(1.0f);
@@ -137,14 +139,15 @@ void Application::Run()
             m_Camera.SetZoom(1.0f);
         }
 
-        for (Layer *layer : m_LayerStack)
-        {
-            layer->OnUpdate(deltaTime);
-        }
-
         if (m_Renderer)
         {
             m_Renderer->BeginFrame(&m_Camera);
+
+            for (Layer *layer : m_LayerStack)
+            {
+                layer->OnRender();
+                layer->OnUpdate(deltaTime);
+            }
 
             // drawing a rectangle
             // m_Renderer->DrawRect(100, 100, 200, 150, 0, 255, 0, 255); // a green rect
@@ -179,9 +182,6 @@ void Application::Run()
                     m_Renderer->DrawIsometricSprite(tileSet, worldX, worldY, 64, 32, tileIndexX, tileIndexY, 512);
                 }
             }
-            std::string fpsText = std::format("FPS {:.0f}", m_Timer.GetFps());
-            auto font = m_Renderer->LoadFont("assets/fonts/toxigenesis.otf", 25);
-            m_Renderer->DrawText(font, fpsText, 0, 0);
 
             m_Renderer->EndFrame();
         }

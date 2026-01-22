@@ -158,7 +158,7 @@ TTF_Font *Renderer2D::LoadFont(const std::string &path, int fontSize)
     return font;
 }
 
-void Renderer2D::DrawText(TTF_Font *font, const std::string &text, int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+void Renderer2D::DrawText(TTF_Font *font, const std::string &text, int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool refWorld)
 {
     if (!m_Renderer || !font || text.empty())
         return;
@@ -188,14 +188,13 @@ void Renderer2D::DrawText(TTF_Font *font, const std::string &text, int x, int y,
     int textHeight = surface->h;
 
     // apply camera tranformation if available
-    if (m_CurrentCamera)
+    if (m_CurrentCamera && refWorld)
     {
         float screenX, screenY;
         m_CurrentCamera->WorldToScreen((float)x, (float)y, screenX, screenY);
         x = (int)screenX;
         y = (int)screenY;
 
-        // apply zoom to text size (optional - might make text blurry)
         // textWidth = (int)(textWidth * m_CurrentCamera->GetZoom());
         // textHeight = (int)(textWidth)*m_CurrentCamera->GetZoom();
     }

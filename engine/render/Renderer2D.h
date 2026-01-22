@@ -25,7 +25,7 @@ public:
 
     TTF_Font *LoadFont(const std::string &path, int fontSize);
 
-    void DrawText(TTF_Font *font, const std::string &text, int x, int y, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255, Uint8 a = 255);
+    void DrawText(TTF_Font *font, const std::string &text, int x, int y, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255, Uint8 a = 255, bool refWorld = false);
 
     void DrawDebugText(const std::string &text, int x = 10, int y = 10);
 
