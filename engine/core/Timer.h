@@ -10,6 +10,8 @@ public:
 
     float GetDeltaTime() const { return m_DeltaTime; }
 
+    float GetFps() const { return m_FPS; }
+
 private:
     std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTime;
     std::chrono::time_point<std::chrono::high_resolution_clock> m_LastTime;

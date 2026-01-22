@@ -7,15 +7,36 @@
 #include "events/EventDispatcher.h"
 #include "events/WindowCloseEvent.h"
 #include "TestLayer.h"
+#include <SDL_ttf.h>
+#include <string>
 
 Application::Application()
-    : m_Running(true), m_Window(nullptr), m_Renderer(nullptr)
+    : m_Running(true), m_Renderer(nullptr), m_Window(nullptr)
 {
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         std::cerr << "SDL init failed\n";
         m_Running = false;
+    }
+
+    if (TTF_Init() == -1)
+    {
+        std::cerr << "TTF_Init failed: " << TTF_GetError() << std::endl;
+        m_Running = false;
+        return;
+    }
+
+    // loading font
+    TTF_Font *testFont = TTF_OpenFont("assets/fonts/toxigenesis.otf", 24);
+    if (!testFont)
+    {
+        std::cerr << "❌ Erro ao carregar a fonte: " << TTF_GetError() << std::endl;
+    }
+    else
+    {
+        std::cout << "✅ Fonte carregada com sucesso! " << std::endl;
+        TTF_CloseFont(testFont);
     }
 
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
@@ -123,7 +144,7 @@ void Application::Run()
 
         if (m_Renderer)
         {
-            m_Renderer->BeginFrame();
+            m_Renderer->BeginFrame(&m_Camera);
 
             // drawing a rectangle
             // m_Renderer->DrawRect(100, 100, 200, 150, 0, 255, 0, 255); // a green rect
@@ -158,6 +179,9 @@ void Application::Run()
                     m_Renderer->DrawIsometricSprite(tileSet, worldX, worldY, 64, 32, tileIndexX, tileIndexY, 512);
                 }
             }
+            std::string fpsText = std::format("FPS {:.0f}", m_Timer.GetFps());
+            auto font = m_Renderer->LoadFont("assets/fonts/toxigenesis.otf", 25);
+            m_Renderer->DrawText(font, fpsText, 0, 0);
 
             m_Renderer->EndFrame();
         }

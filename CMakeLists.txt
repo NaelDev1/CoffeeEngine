@@ -15,6 +15,7 @@ add_executable(CoffeeEngine
     engine/render/Renderer2D.cpp
     engine/input/InputSystem.cpp
     engine/core/Log.cpp
+    engine/layers/DebugLayer.cpp
 
 )
 
@@ -29,10 +30,20 @@ target_include_directories(CoffeeEngine PRIVATE ${SDL2_INCLUDE_DIRS})
 if(APPLE)
     # Homebrew paths Mac M1
     target_include_directories(CoffeeEngine PRIVATE /opt/homebrew/include/SDL2)
-    target_link_libraries(CoffeeEngine PRIVATE ${SDL2_LIBRARIES} /opt/homebrew/lib/libSDL2_image.dylib)
+    target_link_libraries(CoffeeEngine PRIVATE ${SDL2_LIBRARIES} 
+    /opt/homebrew/lib/libSDL2_image.dylib
+    /opt/homebrew/lib/libSDL2_ttf.dylib)
 else()
     # Linux / Windows
     find_package(SDL2_image REQUIRED)
-    target_include_directories(CoffeeEngine PRIVATE ${SDL2_IMAGE_INCLUDE_DIRS})
-    target_link_libraries(CoffeeEngine PRIVATE ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
+    target_include_directories(CoffeeEngine PRIVATE 
+    ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${SDL2_TTF_INCLUDE_DIRS}
+    )
+    target_link_libraries(CoffeeEngine PRIVATE 
+    ${SDL2_LIBRARIES}
+    ${SDL2_IMAGE_LIBRARIES}
+    ${SDL2_TTF_LIBRARIES}
+    )
+     
 endif()

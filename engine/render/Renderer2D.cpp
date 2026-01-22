@@ -1,6 +1,7 @@
 #include "Renderer2D.h"
 #include <SDL_image.h>
 #include <iostream>
+#include "core/Log.h"
 
 Renderer2D::Renderer2D(SDL_Window *window)
 {
@@ -17,6 +18,11 @@ Renderer2D::Renderer2D(SDL_Window *window)
 
 Renderer2D::~Renderer2D()
 {
+    if (m_DebugFont)
+    {
+        TTF_CloseFont(m_DebugFont);
+        m_DebugFont = nullptr;
+    }
 
     if (m_Renderer)
     {
@@ -136,4 +142,73 @@ SDL_Texture *Renderer2D::LoadTexture(const char *path)
     }
 
     return texture;
+}
+
+TTF_Font *Renderer2D::LoadFont(const std::string &path, int fontSize)
+{
+    // try to load the font file
+    TTF_Font *font = TTF_OpenFont(path.c_str(), fontSize);
+    if (!font)
+    {
+        LOG_ERROR("Failed to load font", path, "Error:", TTF_GetError());
+        return nullptr;
+    }
+
+    LOG_INFO("Font loaded successfully: ", path, "Size: ", fontSize);
+    return font;
+}
+
+void Renderer2D::DrawText(TTF_Font *font, const std::string &text, int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+    if (!m_Renderer || !font || text.empty())
+        return;
+
+    // create surface with text
+    SDL_Color color = {r, g, b, a};
+    SDL_Surface *surface = TTF_RenderText_Solid(font, text.c_str(), color);
+
+    if (!surface)
+    {
+        LOG_ERROR("Failed to create text surface: ", TTF_GetError());
+        return;
+    }
+
+    // convert surfece to texture
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(m_Renderer, surface);
+
+    if (!texture)
+    {
+        LOG_ERROR("Failed to create a texture", SDL_GetError());
+        SDL_FreeSurface(surface);
+        return;
+    }
+
+    // Get texture dimensions
+    int textWidth = surface->w;
+    int textHeight = surface->h;
+
+    // apply camera tranformation if available
+    if (m_CurrentCamera)
+    {
+        float screenX, screenY;
+        m_CurrentCamera->WorldToScreen((float)x, (float)y, screenX, screenY);
+        x = (int)screenX;
+        y = (int)screenY;
+
+        // apply zoom to text size (optional - might make text blurry)
+        // textWidth = (int)(textWidth * m_CurrentCamera->GetZoom());
+        // textHeight = (int)(textWidth)*m_CurrentCamera->GetZoom();
+    }
+
+    // Set up destination rectangle
+    SDL_Rect destRect = {x,
+                         y,
+                         textWidth,
+                         textHeight};
+    // render the texture
+    SDL_RenderCopy(m_Renderer, texture, nullptr, &destRect);
+
+    // clean up
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
 }

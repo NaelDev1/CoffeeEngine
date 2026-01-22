@@ -6,7 +6,7 @@ class Layer
 {
 
 public:
-    explicit Layer(const std::string &name = "Layer")
+    explicit Layer(const char *name = "Layer")
         : m_Name(name) {}
 
     virtual ~Layer() = default;
@@ -16,6 +16,8 @@ public:
 
     virtual void OnUpdate(float deltaTime) {}
     virtual void OnEvent(Event &event) {}
+
+    virtual void OnRender() {}
 
     const std::string &GetName() const { return m_Name; }
 
