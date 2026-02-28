@@ -15,7 +15,6 @@ add_executable(CoffeeEngine
     engine/render/Renderer2D.cpp
     engine/input/InputSystem.cpp
     engine/core/Log.cpp
-
 )
 
 # --- Include engine ---
@@ -23,26 +22,28 @@ target_include_directories(CoffeeEngine PRIVATE engine)
 
 # --- SDL2 ---
 find_package(SDL2 REQUIRED)
-target_include_directories(CoffeeEngine PRIVATE ${SDL2_INCLUDE_DIRS})
+find_package(SDL2_image REQUIRED)
+find_package(SDL2_ttf REQUIRED)
 
-# --- SDL2_image ---
 if(APPLE)
     # Homebrew paths Mac M1
     target_include_directories(CoffeeEngine PRIVATE /opt/homebrew/include/SDL2)
-    target_link_libraries(CoffeeEngine PRIVATE ${SDL2_LIBRARIES} 
-    /opt/homebrew/lib/libSDL2_image.dylib
-    /opt/homebrew/lib/libSDL2_ttf.dylib)
-else()
-    # Linux / Windows
-    find_package(SDL2_image REQUIRED)
+    target_link_libraries(CoffeeEngine PRIVATE 
+        ${SDL2_LIBRARIES}
+        /opt/homebrew/lib/libSDL2_image.dylib
+        /opt/homebrew/lib/libSDL2_ttf.dylib
+    )
+elseif(UNIX AND NOT APPLE)  # Linux
     target_include_directories(CoffeeEngine PRIVATE 
-    ${SDL2_IMAGE_INCLUDE_DIRS}
-    ${SDL2_TTF_INCLUDE_DIRS}
+        ${SDL2_INCLUDE_DIRS}
+        ${SDL2_IMAGE_INCLUDE_DIRS}
+        ${SDL2_TTF_INCLUDE_DIRS}
     )
     target_link_libraries(CoffeeEngine PRIVATE 
-    ${SDL2_LIBRARIES}
-    ${SDL2_IMAGE_LIBRARIES}
-    ${SDL2_TTF_LIBRARIES}
+        ${SDL2_LIBRARIES}
+        ${SDL2_IMAGE_LIBRARIES}
+        ${SDL2_TTF_LIBRARIES}
     )
-     
+else()  # Windows
+    # Adicione aqui se precisar
 endif()
