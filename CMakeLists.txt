@@ -3,6 +3,29 @@ project(CoffeeEngine)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC OFF)  # Não precisamos de Qt
+
+# --- Encontrar pacotes com pkg-config ---
+find_package(PkgConfig REQUIRED)
+
+# Verificar e obter todas as informações das bibliotecas
+pkg_check_modules(SDL2 REQUIRED sdl2)
+pkg_check_modules(SDL2_IMAGE REQUIRED SDL2_image>=2.0.0)
+pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf>=2.0.0)
+
+# --- Incluir diretórios para todas as bibliotecas ---
+include_directories(
+    ${SDL2_INCLUDE_DIRS}
+    ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${SDL2_TTF_INCLUDE_DIRS}
+)
+
+# --- Adicionar definições de compilação (se houver) ---
+add_definitions(
+    ${SDL2_CFLAGS_OTHER}
+    ${SDL2_IMAGE_CFLAGS_OTHER}
+    ${SDL2_TTF_CFLAGS_OTHER}
+)
 
 # --- Executável ---
 add_executable(CoffeeEngine 
@@ -17,33 +40,36 @@ add_executable(CoffeeEngine
     engine/core/Log.cpp
 )
 
-# --- Include engine ---
+# --- Incluir diretórios do engine ---
 target_include_directories(CoffeeEngine PRIVATE engine)
 
-# --- SDL2 ---
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
-find_package(SDL2_ttf REQUIRED)
+# --- Linkar bibliotecas (funciona em Linux e Mac) ---
+target_link_libraries(CoffeeEngine PRIVATE
+    ${SDL2_LIBRARIES}
+    ${SDL2_IMAGE_LIBRARIES}
+    ${SDL2_TTF_LIBRARIES}
+    ${SDL2_LDFLAGS_OTHER}
+    ${SDL2_IMAGE_LDFLAGS_OTHER}
+    ${SDL2_TTF_LDFLAGS_OTHER}
+)
 
+# --- Configurações específicas para Mac (se necessário) ---
 if(APPLE)
-    # Homebrew paths Mac M1
-    target_include_directories(CoffeeEngine PRIVATE /opt/homebrew/include/SDL2)
-    target_link_libraries(CoffeeEngine PRIVATE 
-        ${SDL2_LIBRARIES}
-        /opt/homebrew/lib/libSDL2_image.dylib
-        /opt/homebrew/lib/libSDL2_ttf.dylib
+    # No Mac, às vezes precisamos adicionar frameworks
+    find_library(COCOA_LIBRARY Cocoa REQUIRED)
+    find_library(IOKIT_LIBRARY IOKit REQUIRED)
+    find_library(COREVIDEO_LIBRARY CoreVideo REQUIRED)
+    
+    target_link_libraries(CoffeeEngine PRIVATE
+        ${COCOA_LIBRARY}
+        ${IOKIT_LIBRARY}
+        ${COREVIDEO_LIBRARY}
     )
-elseif(UNIX AND NOT APPLE)  # Linux
-    target_include_directories(CoffeeEngine PRIVATE 
-        ${SDL2_INCLUDE_DIRS}
-        ${SDL2_IMAGE_INCLUDE_DIRS}
-        ${SDL2_TTF_INCLUDE_DIRS}
-    )
-    target_link_libraries(CoffeeEngine PRIVATE 
-        ${SDL2_LIBRARIES}
-        ${SDL2_IMAGE_LIBRARIES}
-        ${SDL2_TTF_LIBRARIES}
-    )
-else()  # Windows
-    # Adicione aqui se precisar
 endif()
+
+# --- Mensagens de diagnóstico ---
+message(STATUS "SDL2 encontrado: ${SDL2_FOUND}")
+message(STATUS "SDL2_image encontrado: ${SDL2_IMAGE_FOUND}")
+message(STATUS "SDL2_ttf encontrado: ${SDL2_TTF_FOUND}")
+message(STATUS "SDL2 inclui: ${SDL2_INCLUDE_DIRS}")
+message(STATUS "SDL2 bibliotecas: ${SDL2_LIBRARIES}")

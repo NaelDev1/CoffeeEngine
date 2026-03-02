@@ -1,0 +1,10 @@
+# ninja log v5
+2	1262	1772395298191981473	CMakeFiles/CoffeeEngine.dir/engine/main.cpp.o	c270d0780f1a261e
+3	69	1772321066020975302	CMakeFiles/CoffeeEngine.dir/engine/core/Camera.cpp.o	7670f500f87bef19
+376	2177	1772321068128933627	CMakeFiles/CoffeeEngine.dir/engine/input/InputSystem.cpp.o	2d8be8d5ba4ed401
+69	376	1772321066328969213	CMakeFiles/CoffeeEngine.dir/engine/core/Timer.cpp.o	c9912bf2366e3fb6
+5	817	1772321066768960514	CMakeFiles/CoffeeEngine.dir/engine/core/LayerStack.cpp.o	99f0e99c377bd8a4
+2	1822	1772321067776940586	CMakeFiles/CoffeeEngine.dir/engine/core/Window.cpp.o	36461647fe05360f
+2	429	1772395297359902091	CMakeFiles/CoffeeEngine.dir/engine/core/Log.cpp.o	cbd1fd84fcd2bf5c
+0	35	1772395501203625173	build.ninja	b90980ae08934151
+3	1323	1772321067276950471	CMakeFiles/CoffeeEngine.dir/engine/render/Renderer2D.cpp.o	160affb46b3fdd50
